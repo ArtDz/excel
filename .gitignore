@@ -1,0 +1,6 @@
+.idea
+.idea/.gitignore
+.idea/modules.xml
+.idea/third-site.iml
+.idea/vcs.xml
+node_modules/
