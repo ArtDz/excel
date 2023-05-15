@@ -24,10 +24,17 @@ function toColumn(col, index) {
   `
 }
 
-function toCell(_, col) {
-  return `
-      <div class="cell" contenteditable data-col="${col}"></div>
-  `
+function toCell(row) {
+  return function (_, col) {
+    return `
+      <div 
+      class="cell" 
+      contenteditable 
+      data-col="${col}"
+      data-id="${row}:${col}"
+      ></div>
+    `
+  }
 }
 
 function toChar(_, index) {
@@ -46,33 +53,14 @@ export function createTable(rowsCount = 15) {
 
   rows.push(createRow(cols))
 
-  for (let i = 0; i < rowsCount; i++) {
+  for (let row = 0; row < rowsCount; row++) {
     const cells = new Array(colsCount)
       .fill('')
-      .map(toCell)
+      .map(toCell(row))
       .join('')
 
-    rows.push(createRow(cells, i + 1))
+    rows.push(createRow(cells, row + 1))
   }
 
   return rows.join('')
-  // return `
-  //   <div class="row">
-  //         <div class="row-info"></div>
-  //         <div class="row-data">
-  //             <div class="column">A</div>
-  //             <div class="column">B</div>
-  //             <div class="column">C</div>
-  //         </div>
-  //     </div>
-  //
-  //     <div class="row">
-  //         <div class="row-info">1</div>
-  //         <div class="row-data">
-  //             <div class="cell selected" contenteditable>A1</div>
-  //             <div class="cell" contenteditable>B1</div>
-  //             <div class="cell" contenteditable>C1</div>
-  //         </div>
-  //     </div>
-  // `
 }
