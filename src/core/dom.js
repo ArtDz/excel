@@ -10,8 +10,18 @@ class Dom {
       this.$el.innerHTML = html
       return this
     }
-
     return this.$el.outerHTML.trim()
+  }
+
+  text(text) {
+    if (typeof text === 'string') {
+      this.$el.textContent = text
+      return this
+    }
+    if (this.$el.tagName.toLowerCase() === 'input') {
+      return this.$el.value.trim()
+    }
+    return this.$el.textContent.trim()
   }
 
   clear() {
@@ -40,6 +50,10 @@ class Dom {
     return this
   }
 
+  find(selector) {
+    return $(this.$el.querySelector(selector))
+  }
+
   findAll(selector) {
     return this.$el.querySelectorAll(selector)
   }
@@ -62,6 +76,38 @@ class Dom {
 
   getCoords() {
     return this.$el.getBoundingClientRect()
+  }
+
+  addClass(className) {
+    return this.$el.classList.add(className)
+  }
+
+  removeClass(className) {
+    return this.$el.classList.remove(className)
+  }
+
+  focus() {
+    this.$el.focus()
+    return this
+  }
+
+  id(parse) {
+    if (parse) {
+      const parse = this.id().split(':')
+      return {
+        row: +parse[0],
+        col: +parse[1]
+      }
+    }
+    return this.data.id
+  }
+
+  attr(attrName, value = '') {
+    return this.$el.setAttribute(attrName, value)
+  }
+
+  removeAttr(attrName) {
+    return this.$el.removeAttribute(attrName)
   }
 }
 
