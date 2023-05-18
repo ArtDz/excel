@@ -1,51 +1,65 @@
 import {$} from "@core/dom";
 
 export function tableResizeHandler($root, event) {
-  if (event.target.dataset.resize) {
+  return new Promise(resolve => {
+    if (event.target.dataset.resize) {
 
-    const $resizer = $(event.target),
-          $parent = $resizer.closest('[data-type="resizable"]'),
-          coords = $parent.getCoords(),
-          type = $resizer.data.resize
+      const $resizer = $(event.target),
+        $parent = $resizer.closest('[data-type="resizable"]'),
+        coords = $parent.getCoords(),
+        type = $resizer.data.resize
 
 
-    let value, delta
+      let value, delta
 
-    if (type === 'col') {
-      $resizer.css({opacity: 1, height: '100vh'})
+      if (type === 'col') {
+        $resizer.css({opacity: 1, height: '100vh'})
 
-      document.onmousemove = e => {
-        delta = e.pageX - coords.right
-        value = coords.width + delta
-        $resizer.css({right: -delta + 'px'})
-      }
+        document.onmousemove = e => {
+          delta = e.pageX - coords.right
+          value = coords.width + delta
+          $resizer.css({right: -delta + 'px'})
+        }
 
-      document.onmouseup = () => {
-        $parent.css({width: value + 'px'})
-        $resizer.css({opacity: 0, height: '', right: 0})
+        document.onmouseup = () => {
+          $parent.css({width: value + 'px'})
+          $resizer.css({opacity: 0, height: '', right: 0})
 
-        $root.findAll(`[data-col="${$parent.data.col}"]`)
-          .forEach(el => el.style.width = value + 'px')
+          $root.findAll(`[data-col="${$parent.data.col}"]`)
+            .forEach(el => el.style.width = value + 'px')
 
-        removeDocumentEvents()
-      }
-    } else {
-      $resizer.css({opacity: 1, width: '100vw'})
+          removeDocumentEvents()
 
-      document.onmousemove = e => {
-        delta = e.pageY - coords.bottom
-        value = coords.height + delta
-        $resizer.css({bottom: -delta + 'px'})
-      }
+          resolve({
+            value,
+            type,
+            id: $parent.data.col
+          })
+        }
+      } else {
+        $resizer.css({opacity: 1, width: '100vw'})
 
-      document.onmouseup = () => {
-        $parent.css({height: value + 'px'})
-        $resizer.css({opacity: 0, width: '', bottom: 0})
+        document.onmousemove = e => {
+          delta = e.pageY - coords.bottom
+          value = coords.height + delta
+          $resizer.css({bottom: -delta + 'px'})
+        }
 
-        removeDocumentEvents()
+        document.onmouseup = () => {
+          $parent.css({height: value + 'px'})
+          $resizer.css({opacity: 0, width: '', bottom: 0})
+
+          removeDocumentEvents()
+
+          resolve({
+            value,
+            type,
+            id: $parent.data.row
+          })
+        }
       }
     }
-  }
+  })
 }
 
 function removeDocumentEvents() {

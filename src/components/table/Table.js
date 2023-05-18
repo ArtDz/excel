@@ -4,6 +4,9 @@ import {$} from "@core/dom";
 import {tableResizeHandler} from "@/components/table/table.resize";
 import {TableSelection} from "@/components/table/TableSelection";
 import {matrix, nextSelector} from "@/components/table/table.functions";
+import * as actions from "@/redux/actions";
+import {defaultStyles} from "@/constants";
+import {parse} from "@core/utils";
 
 export class Table extends ExcelComponent {
   static className = 'excel__table'
@@ -21,7 +24,7 @@ export class Table extends ExcelComponent {
   }
 
   toHTML() {
-    return createTable(Table.TABLE_LENGTH)
+    return createTable(Table.TABLE_LENGTH, this.store.getState())
   }
 
   init() {
@@ -30,18 +33,34 @@ export class Table extends ExcelComponent {
 
     this.selectCell($cell)
 
-    this.$on('formula:input', text => {
-      this.selection.current.text(text)
+    this.$on('formula:input', value => {
+      this.selection.current
+        .attr('data-value', value)
+        .text(parse(value))
+      // this.selection.current
+      this.updateTextInStore(value)
     })
 
     this.$on('formula:done', () => {
       this.selection.current.focus()
     })
+
+    this.$on('toolbar:applyStyle', value => {
+      this.selection.applyStyle(value)
+      this.$dispatch(actions.applyStyle({
+        value,
+        ids: this.selection.selectedIds
+      }))
+    })
+
   }
 
   selectCell($cell) {
     this.selection.select($cell)
-    this.$emit('table:value', $cell.text())
+    this.$emit('table:value', $cell)
+
+    const styles = $cell.getStyles(Object.keys(defaultStyles))
+    this.$dispatch(actions.changeStyles(styles))
   }
 
   onClick(event) {
@@ -59,9 +78,18 @@ export class Table extends ExcelComponent {
     }
   }
 
+  async resizeTable(event) {
+    try {
+      const data = await tableResizeHandler(this.$root, event)
+      this.$dispatch(actions.tableResize(data))
+    } catch (e) {
+      console.error('Resize error', e)
+    }
+  }
+
 
   onMousedown(event) {
-    tableResizeHandler(this.$root, event)
+    this.resizeTable(event)
   }
 
   onKeydown(event) {
@@ -86,8 +114,15 @@ export class Table extends ExcelComponent {
     }
   }
 
+  updateTextInStore(value) {
+    this.$dispatch(actions.changeText({
+      id: this.selection.current.id(),
+      value
+    }))
+  }
+
   onInput() {
-    this.$emit('table:value', this.selection.current.text())
+    this.updateTextInStore(this.selection.current.text())
   }
 
 }

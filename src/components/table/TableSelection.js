@@ -1,5 +1,6 @@
 export class TableSelection {
   static attrName = 'data-select'
+
   constructor() {
     this.group = []
     this.current = null
@@ -17,10 +18,17 @@ export class TableSelection {
     this.group = []
   }
 
+  get selectedIds() {
+    return this.group.map($el => $el.id())
+  }
 
   selectGroup(elemsArray = []) {
     this.clear()
     this.group = elemsArray
     this.group.forEach($el => $el.attr(TableSelection.attrName))
+  }
+
+  applyStyle(style) {
+    this.group.forEach($el => $el.css(style))
   }
 }
