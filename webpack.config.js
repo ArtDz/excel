@@ -3,6 +3,7 @@ const HtmlWebpackPlugin = require('html-webpack-plugin')
 const CopyPlugin = require("copy-webpack-plugin")
 // const FaviconsWebpackPlugin = require('favicons-webpack-plugin')
 const MiniCssExtractPlugin = require("mini-css-extract-plugin")
+const webpack = require('webpack')
 
 module.exports = (env, argv) => {
 
@@ -67,7 +68,7 @@ module.exports = (env, argv) => {
 
       new MiniCssExtractPlugin({
         filename: filename('css')
-      })
+      }),
 
     ],
     module: {
