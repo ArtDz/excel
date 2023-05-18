@@ -1,17 +1,25 @@
 import {ExcelComponent} from "@core/ExcelComponent";
+import * as actions from "@/redux/actions";
 
 export class Header extends ExcelComponent {
   static className = 'excel__header'
 
   constructor($root, options) {
     super($root, {
+      listeners: ['focusout'],
       ...options
     });
   }
 
+  onFocusout(event) {
+    this.$dispatch(actions.changeTableName(event.target.value))
+  }
+
+
   toHTML() {
+    const name = this.store.getState().tableName
     return `
-      <input type="text" class="input" value="Новая таблица">
+      <input type="text" class="input" value="${name}">
   
       <div>
   
